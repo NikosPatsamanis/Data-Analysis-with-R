@@ -1,0 +1,395 @@
+#Πατσαμάνης Νικόλαος  6190108
+#Εργασία 8, κώδικας
+
+#Αρχικά διαλέγω το αρχείο για να μου εμφανίσει το όνομα. Έπειτα αποθηκεύω τα δεδομένα σε ένα data.frame με το όνομα data
+file.choose()
+data<-read.table("C:\\Users\\pc\\Desktop\\data8.txt",header=T)  #Στη πρώτη γραμμή έχω τα ονόματα των στηλών οπότε βάζω header=T
+
+#Εγκαθιστώ τις βιβλιοθήκες που χρειάζομαι και με την εντολή library τις έχω έτοιμες για χρήση
+install.packages('psych')  
+library(psych)
+install.packages(nortest)
+library(nortest)
+install.packages(car)
+library(car)
+install.packages(gplots)
+library(gplots)
+install.packages('sjPlot')
+library(sjPlot)
+
+#Επειδή οι μεταβλητές έχουν καταγραφεί στα δεδομένα ως αριθμοί, τις μετατρέπω σε κατηγορικές
+data$BOWL<-as.factor(data$BOWL)
+data$CASS<-as.factor(data$CASS)
+data$DISH<-as.factor(data$DISH)
+data$TRAY<-as.factor(data$TRAY)
+
+
+summary(data) #Βρίσκω περιγραφικά μέτρα όπως η διάμεσος και οι τιμές των τεταρτημορίων για κάθε μεταβλητή
+sapply(data[5:7],sd) #Βρίσκω την τυπική απόκλιση για κάθε ποσοτική μεταβλητή
+sapply(data[5:7],skew) #Βρίσκω την λοξότητα για κάθε ποσοτική μεταβλητή
+sapply(data[5:7],kurtosi) #Βρίσκω την κύρτωση για κάθε ποσοτική μεταβλητή
+
+x<-sapply(data[1:4],table)[2,] #Βρίσκω πόσα σκεύη από κάθε είδος υπάρχουν
+y<-59-sum(sapply(data[1:4],table)[2,]) #Βρίσκω πόσα είναι αυτά που δεν είναι κανένα είδος από αυτά που δίνονται
+pie(c(x,y),labels=(c('BOWL','CASS','DISH','TRAY','OTHER')),col=c(1:5),main=('Pie for categorical variables')) #Φτίαχνω πίτα
+legend('topright',c('BOWL','CASS','DISH','TRAY','OTHER'),fill=c(1:5))
+
+#Βρίσκω το ποσοστό της κάθε κατηγορίας και στρογγυλοποιώ για να μην έχω πολλά δεκαδικά
+round(sapply(data[1:4],table)[2,]/59,2)
+round(1-sum(sapply(data[1:4],table)[2,]/59),2)
+
+#Μετατρέπω τις ποσοτικές μεταβλητές σε κατηγορικές, χωρίζοντάς τες σε 4 κατηγορίες
+diam<-as.factor(cut(data$DIAM,4))
+time<-as.factor(cut(data$TIME,4))
+price<-as.factor(cut(data$TIME,4))
+
+#Προχωράω σε ανάλυση διακύμανσης και κάνω έλεγχο Tukey για να δω αν διαφέρουν σημαντικά οι μέσοι
+anova1<-aov(data$DIAM~data$BOWL,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$DIAM~data$CASS,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$DIAM~data$DISH,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$DIAM~data$TRAY,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$DIAM~time,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$DIAM~price,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$TIME~data$BOWL,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$TIME~data$CASS,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$TIME~data$DISH,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$TIME~data$TRAY,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$TIME~data$price,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$PRICE~data$BOWL,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$PRICE~data$CASS,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$PRICE~data$DISH,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+anova1<-aov(data$PRICE~data$TRAY,data=data)
+summary(anova1)
+TukeyHSD(anova1)
+
+
+#Ελέγχοι κανονικότητας για κάθε ποσοτική μεταβλητή συνολικά αλλά και για κάθε ποσοτική μεταβλητή ανά κατηγορία σκεύους
+lillie.test(data$DIAM)
+lillie.test(data$TIME)
+lillie.test(data$PRICE)
+lillie.test(data$DIAM[data$BOWL==1])
+lillie.test(data$DIAM[data$CASS==1])
+lillie.test(data$DIAM[data$DISH==1])
+lillie.test(data$DIAM[data$TRAY==1])
+lillie.test(data$TIME[data$BOWL==1])
+lillie.test(data$TIME[data$CASS==1])
+lillie.test(data$TIME[data$DISH==1])
+lillie.test(data$TIME[data$TRAY==1])
+lillie.test(data$PRICE[data$BOWL==1])
+lillie.test(data$PRICE[data$CASS==1])
+lillie.test(data$PRICE[data$DISH==1])
+lillie.test(data$PRICE[data$TRAY==1])
+
+shapiro.test(data$DIAM)
+shapiro.test(data$TIME)
+shapiro.test(data$PRICE)
+shapiro.test(data$DIAM[data$BOWL==1])
+shapiro.test(data$DIAM[data$CASS==1])
+shapiro.test(data$DIAM[data$DISH==1])
+shapiro.test(data$DIAM[data$TRAY==1])
+shapiro.test(data$TIME[data$BOWL==1])
+shapiro.test(data$TIME[data$CASS==1])
+shapiro.test(data$TIME[data$DISH==1])
+shapiro.test(data$TIME[data$TRAY==1])
+shapiro.test(data$PRICE[data$BOWL==1])
+shapiro.test(data$PRICE[data$CASS==1])
+shapiro.test(data$PRICE[data$DISH==1])
+shapiro.test(data$PRICE[data$TRAY==1])
+
+#Φτιάχνω ένα qqplot για κάθε ποσοτική μεταβλητή και προσθέτω τη γραμμή για να συγκρίνω με τη κανονικότητα
+par(mfrow=c(1,3))
+qqnorm(data$DIAM,main='Normal qqplot of diam')
+qqline(data$DIAM)
+qqnorm(data$TIME,main='Normal qqplot of time')
+qqline(data$TIME)
+qqnorm(data$PRICE,main='Normal qqplot of price')
+qqline(data$PRICE)
+
+#Φτιάχνω και ένα qqplot για κάθε συνδυασμό ποσοτικής και κατηγορικής μεταβλητής
+anova1<-aov(data$DIAM~data$BOWL,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of diam and bowl'))
+qqline(anova1$res)
+anova1<-aov(data$DIAM~data$CASS,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of diam and cass'))
+qqline(anova1$res)
+anova1<-aov(data$DIAM~data$DISH,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of diam and dish'))
+qqline(anova1$res)
+anova1<-aov(data$DIAM~data$TRAY,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of diam and tray'))
+qqline(anova1$res)
+anova1<-aov(data$DIAM~data$TIME,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of diam and time'))
+qqline(anova1$res)
+anova1<-aov(data$DIAM~data$PRICE,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of diam and price'))
+qqline(anova1$res)
+anova1<-aov(data$TIME~data$BOWL,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of time and bowl'))
+qqline(anova1$res)
+anova1<-aov(data$TIME~data$CASS,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of time and cass'))
+qqline(anova1$res)
+anova1<-aov(data$TIME~data$DISH,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of time and dish'))
+qqline(anova1$res)
+anova1<-aov(data$TIME~data$TRAY,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of time and tray'))
+qqline(anova1$res)
+anova1<-aov(data$TIME~data$PRICE,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of time and price'))
+qqline(anova1$res)
+anova1<-aov(data$PRICE~data$BOWL,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of price and bowl'))
+qqline(anova1$res)
+anova1<-aov(data$PRICE~data$CASS,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of price and cass'))
+qqline(anova1$res)
+anova1<-aov(data$PRICE~data$DISH,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of price and dish'))
+qqline(anova1$res)
+anova1<-aov(data$PRICE~data$TRAY,data=data)
+qqnorm(anova1$res,main=('Normal qqplot of price and tray'))
+qqline(anova1$res)
+
+#Μετατρέπω πάλι τις ποσοτικές σε κατηγορικές, βάζοντάς τες σε 4 κατηγορίες, αυτή τη φορά τις αποθηκεύω ως νούμερα
+#γιατί οι παρακάτω έλεγχοι δε δέχονται κατηγορικές μεταβλητές
+diam<-as.numeric(cut(data$DIAM,4))
+time<-as.numeric(cut(data$TIME,4))
+price<-as.numeric(cut(data$TIME,4))
+
+#Κάνω ελέγχους συσχετίσεων ανάμεσα σε όλες τις μεταβλητές
+#Το Chi-squared test χρειάζεται δείγμα τουλάχιστον 16 παρατηρήσεων
+cor(diam,data$BOWL,method='pearson')  #Βρίσκω τον συντελεστή συσχέτισης του Pearson 
+chisq.test(diam,data$BOWL)  #Έλεγχος ανεξαρτησίας χ^2 
+cor(diam,data$CASS,method='pearson')
+chisq.test(diam,data$CASS)
+cor(diam,data$DISH,method='pearson')
+chisq.test(diam,data$DISH)
+cor(diam,data$TRAY,method='pearson')
+chisq.test(diam,data$TRAY)
+cor(time,data$BOWL,method='pearson')
+chisq.test(time,data$BOWL)
+cor(time,data$CASS,method='pearson')
+chisq.test(time,data$CASS)
+cor(time,data$DISH,method='pearson')
+chisq.test(time,data$DISH)
+cor(time,data$TRAY,method='pearson')
+chisq.test(time,data$TRAY)
+cor(price,data$BOWL,method='pearson')
+chisq.test(price,data$BOWL)
+cor(price,data$CASS,method='pearson')
+chisq.test(price,data$CASS)
+cor(price,data$DISH,method='pearson')
+chisq.test(price,data$DISH)
+cor(price,data$TRAY,method='pearson')
+chisq.test(price,data$TRAY)
+cor(diam,time,method='pearson')
+chisq.test(diam,time)
+cor(diam,price,method='pearson')
+chisq.test(diam,price)
+cor(time,price,method='pearson')
+chisq.test(time,price)
+
+#Φτιάχνω το x, ένα διάνυσμα το οποίο θα εμπεριέχει όλη τη πληροφορία που μου δίνουν οι 4 κατηγορικές μεταβλητές 
+x<-c(rep(NA,59))  #Δημιουργώ διάνυσμα x με 59 NA
+for(i in 1:59){
+if(data$BOWL[i]==1){
+x[i]<-1}
+}
+if(data$CASS[i]==1){
+x[i]<-2}
+if(data$DISH)[i]==1{
+x[i]<-3}
+if(data$TRAY[i]==1){
+x[i]<-4}
+if(is.na(x)[i]){
+x[i]<-5}
+}
+cor(diam,x,method='pearson')
+chisq.test(diam,x)
+cor(time,x,method='pearson')
+chisq.test(time,x)
+cor(price,x,method='pearson')
+chisq.test(price,x)
+
+#Ελέγχοι κανονικότητας δύο δειγμάτων
+ks.test(data$DIAM,x)  #Έλεγχος κανονικότητας Kolmogorov-Smirnov
+ks.test(data$TIME,x)
+ks.test(data$PRICE,x)
+ks.test(data$DIAM,data$TIME)
+ks.test(data$DIAM,data$PRICE)
+ks.test(data$TIME,data$PRICE)
+
+#Φτιάχνω ένα barplot ανάμεσα σε κάθε ποσοτική και κατηγορική μεταβλητή. 
+par(mfrow=c(2,2)) #Βάζω το par για να τα έχω μαζεμένα ανά ποσοτική μεταβλητή
+barplot(data$DIAM[data$BOWL==1],main='barplot for diam of variable bowl')
+barplot(data$DIAM[data$CASS==1],main='barplot for diam of variable cass')
+barplot(data$DIAM[data$DISH==1],main='barplot for diam of variable dish')
+barplot(data$DIAM[data$TRAY==1],main='barplot for diam of variable tray')
+par(mfrow=c(2,2))
+barplot(data$TIME[data$BOWL==1],main='barplot for time of variable bowl')
+barplot(data$TIME[data$CASS==1],main='barplot for time of variable cass')
+barplot(data$TIME[data$DISH==1],main='barplot for time of variable dish')
+barplot(data$TIME[data$TRAY==1],main='barplot for time of variable tray')
+par(mfrow=c(2,2))
+barplot(data$PRICE[data$BOWL==1],main='barplot for price of variable bowl')
+barplot(data$PRICE[data$CASS==1],main='barplot for price of variable cass')
+barplot(data$PRICE[data$DISH==1],main='barplot for price of variable dish')
+barplot(data$PRICE[data$TRAY==1],main='barplot for price of variable tray')
+
+#Φτιάχνω ένα boxplot ανάμεσα σε κάθε ποσοτική και κατηγορική μεταβλητή
+#Από το boxplot βλέπω εύκολα τη διακύμανση και τις ακραίες τιμές
+par(mfrow=c(2,2))
+boxplot(data$DIAM[data$BOWL==1],main='boxplot for diam of variable bowl')
+boxplot(data$DIAM[data$CASS==1],main='boxplot for diam of variable cass')
+boxplot(data$DIAM[data$DISH==1],main='boxplot for diam of variable dish')
+boxplot(data$DIAM[data$TRAY==1],main='boxplot for diam of variable tray')
+par(mfrow=c(2,2))
+boxplot(data$TIME[data$BOWL==1],main='boxplot for time of variable bowl')
+boxplot(data$TIME[data$CASS==1],main='boxplot for time of variable cass')
+boxplot(data$TIME[data$DISH==1],main='boxplot for time of variable dish')
+boxplot(data$TIME[data$TRAY==1],main='boxplot for time of variable tray')
+par(mfrow=c(2,2))
+boxplot(data$PRICE[data$BOWL==1],main='boxplot for price of variable bowl')
+boxplot(data$PRICE[data$CASS==1],main='boxplot for price of variable cass')
+boxplot(data$PRICE[data$DISH==1],main='boxplot for price of variable dish')
+boxplot(data$PRICE[data$TRAY==1],main='boxplot for price of variable tray')
+
+#Κάνω ελέγχους ίσων μέσων για κάθε ποσοτική μεταβλητή ανάμεσα στα προϊόντα που είναι από ένα είδος
+#και τα προϊόντα που δεν είναι από αυτό
+wilcox.test(data$DIAM[data$BOWL==1],data$DIAM[data$BOWL!=1])
+wilcox.test(data$DIAM[data$CASS==1],data$DIAM[data$CASS!=1])
+wilcox.test(data$DIAM[data$DISH==1],data$DIAM[data$DISH!=1])
+wilcox.test(data$DIAM[data$TRAY==1],data$DIAM[data$TRAY!=1])
+wilcox.test(data$TIME[data$BOWL==1],data$TIME[data$BOWL!=1])
+wilcox.test(data$TIME[data$CASS==1],data$TIME[data$CASS!=1])
+wilcox.test(data$TIME[data$DISH==1],data$TIME[data$DISH!=1])
+wilcox.test(data$TIME[data$TRAY==1],data$TIME[data$TRAY!=1])
+wilcox.test(data$PRICE[data$BOWL==1],data$PRICE[data$BOWL!=1])
+wilcox.test(data$PRICE[data$CASS==1],data$PRICE[data$CASS!=1])
+wilcox.test(data$PRICE[data$DISH==1],data$PRICE[data$DISH!=1])
+wilcox.test(data$PRICE[data$TRAY==1],data$PRICE[data$TRAY!=1])
+
+#Κάνω ελέγχους ίσων διακυμάνσεων
+bartlett.test(data$DIAM,data$BOWL)
+bartlett.test(data$DIAM,data$CASS)
+bartlett.test(data$DIAM,data$DISH)
+bartlett.test(data$DIAM,data$TRAY)
+bartlett.test(data$TIME,data$BOWL)
+bartlett.test(data$TIME,data$CASS)
+bartlett.test(data$TIME,data$DISH)
+bartlett.test(data$TIME,data$TRAY)
+bartlett.test(data$PRICE,data$BOWL)
+bartlett.test(data$PRICE,data$CASS)
+bartlett.test(data$PRICE,data$DISH)
+bartlett.test(data$PRICE,data$TRAY)
+bartlett.test(data$DIAM~x)
+bartlett.test(data$TIME~x)
+bartlett.test(data$PRICE~x)
+#Δίνω μεγαλύτερη προσοχή στο levene test από ότι στο bartlett στις μεταβλητές που δεν είναι κανονικές
+#αφού το bartlett test έχει καλύτερη εφαρμογή στα δεδομένα που προέρχονται από την κανονική κατανομή
+leveneTest(data$DIAM,data$BOWL)
+leveneTest(data$DIAM,data$CASS)
+leveneTest(data$DIAM,data$DISH)
+leveneTest(data$DIAM,data$TRAY)
+leveneTest(data$TIME,data$BOWL)
+leveneTest(data$TIME,data$CASS)
+leveneTest(data$TIME,data$DISH)
+leveneTest(data$TIME,data$TRAY)
+leveneTest(data$PRICE,data$BOWL)
+leveneTest(data$PRICE,data$CASS)
+leveneTest(data$PRICE,data$DISH)
+leveneTest(data$PRICE,data$TRAY)
+#Κάνω t-test για να ελέγξω την ανεξαρτησία του δείγματος
+t.test(data$DIAM[data$BOWL==1],data$DIAM[data$BOWL!=1])
+t.test(data$DIAM[data$CASS==1],data$DIAM[data$CASS!=1])
+t.test(data$DIAM[data$DISH==1],data$DIAM[data$DISH!=1])
+t.test(data$DIAM[data$TRAY==1],data$DIAM[data$TRAY!=1])
+t.test(data$TIME[data$BOWL==1],data$TIME[data$BOWL!=1])
+t.test(data$TIME[data$CASS==1],data$TIME[data$CASS!=1])
+t.test(data$TIME[data$DISH==1],data$TIME[data$DISH!=1])
+t.test(data$TIME[data$TRAY==1],data$TIME[data$TRAY!=1])
+t.test(data$PRICE[data$BOWL==1],data$PRICE[data$BOWL!=1])
+t.test(data$PRICE[data$CASS==1],data$PRICE[data$CASS!=1])
+t.test(data$PRICE[data$DISH==1],data$PRICE[data$DISH!=1])
+t.test(data$PRICE[data$TRAY==1],data$PRICE[data$TRAY!=1])
+
+#Κάνω ένα διάγραμμα όπου θα φαίνεται η διαφορά στους μέσους ποσοτικών μεταβλητών ανάμεσα στα σκεύη που
+#ανήκουν σε μία κατηγορία και τα υπόλοιπα
+par(mfrow=(c(2,2)))
+plotmeans(data$DIAM~data$BOWL)
+plotmeans(data$DIAM~data$CASS)
+plotmeans(data$DIAM~data$DISH)
+plotmeans(data$DIAM~data$TRAY)
+par(mfrow=(c(2,2)))
+plotmeans(data$TIME~data$BOWL)
+plotmeans(data$TIME~data$CASS)
+plotmeans(data$TIME~data$DISH)
+plotmeans(data$TIME~data$TRAY)
+par(mfrow=(c(2,2)))
+plotmeans(data$PRICE~data$BOWL)
+plotmeans(data$PRICE~data$CASS)
+plotmeans(data$PRICE~data$DISH)
+plotmeans(data$PRICE~data$TRAY)
+
+#Φτίαχνω γραμμικά μοντέλα με σκοπό να μπορώ να ερμηνεύσω τη κάθε ποσοτική μεταβλητή  
+lm(DIAM~TIME+PRICE+BOWL+CASS+DISH+TRAY,data=data)  #Βάζω όλες τις παραμέτρους στην αρχή, δηλαδή έχω πλήρη μοντέλα
+lm(TIME~DIAM+PRICE+BOWL+CASS+DISH+TRAY,data=data)
+lm(PRICE~DIAM+TIME+BOWL+CASS+DISH+TRAY,data=data)
+summary(lm(DIAM~TIME+PRICE+BOWL+CASS+DISH+TRAY,data=data))  #Από το summary βλέπω στοιχεία όπως εκτιμήσεις για κάθε 
+#παράμετρο μεταβλητής, τυπικά σφάλματα, p-values, R^2 και R^2 adj
+summary(lm(TIME~DIAM+PRICE+BOWL+CASS+DISH+TRAY,data=data))
+summary(lm(PRICE~DIAM+TIME+BOWL+CASS+DISH+TRAY,data=data))
+step(lm(DIAM~TIME+PRICE+BOWL+CASS+DISH+TRAY,data=data)) #Το step μου εμφανίζει το AIC του μοντέλου και βρίσκει ένα μοντέλο
+#με μειωμένο AIC, οπότε βελτιωμένο
+step(lm(TIME~DIAM+PRICE+BOWL+CASS+DISH+TRAY,data=data))
+step(lm(PRICE~DIAM+TIME+BOWL+CASS+DISH+TRAY,data=data))
+
+lm(DIAM~PRICE+BOWL+CASS+DISH,data=data)  #Μετά φτιάχνω μοντέλα αφαιρόντας τις παραμέτρους που δε δίνουν σημαντική πληροφορία
+summary(lm(DIAM~PRICE+BOWL+CASS+DISH,data=data))
+step(lm(DIAM~PRICE+BOWL+CASS+DISH,data=data))
+lm(DIAM-7.24307~PRICE+BOWL+CASS+DISH,data=data) #Αφαιρώ το 7.24307 για να έχει σωστή φυσική ερμηνεία το μοντέλο
+lm(TIME~PRICE,data=data)
+summary(lm(TIME~PRICE,data=data))
+step(lm(TIME~PRICE,data=data))
+lm(TIME-6.5422~PRICE,data=data)
+lm(PRICE~DIAM+TIME,data=data)
+summary(lm(PRICE~DIAM+TIME,data=data))
+step(lm(PRICE~DIAM+TIME,data=data))
+lm(PRICE+26.0254~DIAM+TIME,data=data)  
+lm(log(DIAM)~log(PRICE)+BOWL+CASS+DISH,data=data)  #Λογαριθμίζοντας πέτυχα το να βελτιώσω το AIC μου για να έχω 
+#καλύτερες προβλέψεις
+lm(log(TIME)~PRICE,data=data)
+lm(log(PRICE)~log(DIAM)+log(TIME),data=data)
+step(lm(log(DIAM)~log(PRICE)+BOWL+CASS+DISH,data=data))
+step(lm(log(TIME)~PRICE,data=data))
+step(lm(log(PRICE)~log(DIAM)+log(TIME),data=data))
